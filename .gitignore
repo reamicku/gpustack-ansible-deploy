@@ -3,3 +3,6 @@ keys
 
 # Inventory files
 inventory.ini
+
+# Other
+.vscode
