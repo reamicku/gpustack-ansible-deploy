@@ -1,0 +1,17 @@
+# Common Options
+debug: false
+data_dir: {{ gpustack_data_dir }}
+cache_dir: {{ gpustack_cache_dir }}
+token: {{ gpustack_token }}
+
+# Worker Options
+server_url: http://{{ gpustack_server_host }}:{{ gpustack_server_port }}
+worker_ip: {{ ansible_host }}
+#disable_metrics: false
+#metrics_port: 10151
+#worker_port: 10150
+log_dir: {{ gpustack_log_dir }}
+system_reserved:
+  ram: 0.5
+  vram: 0
+#tools_download_base_url: https://mirror.mycompany.com

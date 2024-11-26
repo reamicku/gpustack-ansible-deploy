@@ -1,0 +1,24 @@
+[controllers]
+controller-1 ansible_host=192.168.122.10 ansible_port=22 ansible_user=user ansible_ssh_private_key_file=./keys/user_key
+
+[workers]
+worker-1 ansible_host=192.168.122.21 ansible_port=22 ansible_user=user ansible_ssh_private_key_file=./keys/user_key
+worker-2 ansible_host=192.168.122.22 ansible_port=22 ansible_user=user ansible_ssh_private_key_file=./keys/user_key
+worker-3 ansible_host=192.168.122.23 ansible_port=22 ansible_user=user ansible_ssh_private_key_file=./keys/user_key
+
+[all:children]
+controllers
+workers
+
+[all:vars]
+gpustack_data_dir=/home/user/gpustack/data
+gpustack_cache_dir=/home/user/gpustack/cache
+gpustack_log_dir=/home/user/gpustack/log
+
+gpustack_server_host=192.168.122.10
+gpustack_server_port=6712
+gpustack_bootstrap_password=admin12345
+gpustack_token=abcd1234
+
+ansible_sudo_pass=user
+ansible_ssh_common_args='-o IdentitiesOnly=yes'

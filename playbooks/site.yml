@@ -1,0 +1,114 @@
+---
+- name: Install requirements
+  hosts: all
+  become: true
+  tasks:
+    - name: Install requirements
+      ansible.builtin.package:
+        name:
+          - curl
+          - python3
+          - pipx
+
+- name: Setup GPUStack
+  hosts: all
+  tasks:
+    - name: Install pipx package
+      community.general.pipx:
+        name: gpustack
+    - name: Create main directory
+      ansible.builtin.file:
+        path: ~/gpustack
+        state: directory
+        mode: '0755'
+    - name: Create data directory
+      ansible.builtin.file:
+        path: ~/gpustack/data
+        state: directory
+        mode: '0755'
+    - name: Create cache directory
+      ansible.builtin.file:
+        path: ~/gpustack/cache
+        state: directory
+        mode: '0755'
+    - name: Create log directory
+      ansible.builtin.file:
+        path: ~/gpustack/log
+        state: directory
+        mode: '0755'
+    - name: Copy and render service file
+      become: true
+      ansible.builtin.template:
+        src: ./templates/gpustack.service.j2
+        dest: /etc/systemd/system/gpustack.service
+        mode: '0644'
+      notify: Restart gpustack
+    - name: Enable and start service
+      become: true
+      ansible.builtin.systemd_service:
+        name: gpustack
+        state: stopped
+        enabled: true
+        daemon_reload: true
+  handlers:
+    - name: Restart gpustack
+      become: true
+      ansible.builtin.systemd_service:
+        name: gpustack
+        state: restarted
+
+- name: Setup controller node
+  hosts: controllers
+  tasks:
+    - name: Copy and render config file for controller
+      notify: Restart gpustack
+      ansible.builtin.template:
+        src: ./templates/config_server.yml.j2
+        dest: /home/user/gpustack/config.yml
+        mode: '0644'
+    - name: Start GPUstack
+      become: true
+      ansible.builtin.systemd_service:
+        name: gpustack
+        state: started
+        enabled: true
+  handlers:
+    - name: Restart gpustack
+      become: true
+      ansible.builtin.systemd_service:
+        name: gpustack
+        state: restarted
+        daemon_reload: true
+
+- name: Setup worker nodes
+  hosts: workers
+  tasks:
+    - name: Copy and render config file for workers
+      notify: Restart gpustack
+      ansible.builtin.template:
+        src: ./templates/config_worker.yml.j2
+        dest: /home/user/gpustack/config.yml
+        mode: '0644'
+    - name: Start GPUstack
+      become: true
+      ansible.builtin.systemd_service:
+        name: gpustack
+        state: started
+        enabled: true
+  handlers:
+    - name: Restart gpustack
+      become: true
+      ansible.builtin.systemd_service:
+        name: gpustack
+        state: restarted
+        daemon_reload: true
+
+- name: Output variables
+  hosts: controllers
+  tasks:
+    - name: Get control panel URL & credentials
+      ansible.builtin.debug:
+        msg:
+          - "URL:      http://{{ gpustack_server_host }}:{{ gpustack_server_port }}"
+          - "Username: admin"
+          - "Password: {{ gpustack_bootstrap_password }}"

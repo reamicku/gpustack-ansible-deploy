@@ -1,0 +1,20 @@
+---
+- name: Stop GPUStack worker nodes
+  hosts: workers
+  tasks:
+    - name: Stop GPUstack
+      become: true
+      ansible.builtin.systemd_service:
+        name: gpustack
+        state: stopped
+        enabled: true
+
+- name: Stop GPUStack controller node
+  hosts: controllers
+  tasks:
+    - name: Stop GPUstack
+      become: true
+      ansible.builtin.systemd_service:
+        name: gpustack
+        state: stopped
+        enabled: true

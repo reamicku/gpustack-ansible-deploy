@@ -1,0 +1,12 @@
+[Unit]
+Description=GPUStack Service
+
+[Service]
+ExecStart=/home/user/.local/bin/gpustack start --config-file /home/user/gpustack/config.yml
+Restart=always
+RestartSec=3
+StandardOutput=append:{{ gpustack_log_dir }}/gpustack.log
+StandardError=append:{{ gpustack_log_dir }}/gpustack.log
+
+[Install]
+WantedBy=multi-user.target
