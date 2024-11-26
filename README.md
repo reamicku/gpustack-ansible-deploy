@@ -8,6 +8,7 @@
   - [SSH keys](#ssh-keys)
   - [Playbooks](#playbooks)
     - [Service](#service)
+  - [License](#license)
 
 ## About
 
@@ -104,3 +105,7 @@ Default credentials:
 
 - User: `admin`
 - Password: `admin12345`
+
+## License
+
+[MIT License](./LICENSE)
