@@ -1,0 +1,71 @@
+---
+- name: Install node-exporter
+  hosts: all
+  become: true
+  tasks:
+    - name: Run node-exporter container
+      docker_container:
+        name: node-exporter
+        image: quay.io/prometheus/node-exporter:latest
+        restart: yes
+        detach: yes
+        network_mode: host
+        pid_mode: host
+        volumes:
+          - "/:/host:ro,rslave"
+        command: --path.rootfs=/host
+
+- name: Install prometheus
+  hosts: controllers
+  become: true
+  tasks:
+    - name: Generate target hosts list
+      set_fact:
+        target_hosts: "{% for host in groups['all'] %}\"{{ hostvars[host]['ansible_host'] }}:9100\"{% if not loop.last %}, {% endif %}{% endfor %}"
+    
+    - name: Create data directory
+      ansible.builtin.file:
+        path: ~/data
+        state: directory
+        mode: '0755'
+      become: false
+
+    - name: Create prometheus data directory
+      ansible.builtin.file:
+        path: ~/data/prometheus
+        state: directory
+        mode: '0755'
+      become: false
+
+    - name: Update config.yml with target hosts
+      template:
+        src: ./templates/prometheus.yml.j2
+        dest: /home/user/data/prometheus/prometheus.yml
+        mode: '0644'
+      become: false
+      notify: Restart prometheus
+
+    - name: Create Prometheus persistence volume
+      docker_volume:
+        name: prometheus_persistence_data
+        driver: local
+
+    - name: Run Prometheus container
+      docker_container:
+        name: prometheus
+        image: prom/prometheus:latest
+        restart: yes
+        detach: yes
+        ports:
+          - "0.0.0.0:8080:9090"
+        volumes:
+          - "prometheus_persistence_data:/prometheus"
+          - "/home/user/data/prometheus:/etc/prometheus"
+
+  handlers:
+    - name: Restart prometheus
+      become: true
+      docker_container:
+        name: prometheus
+        restart: yes
+     

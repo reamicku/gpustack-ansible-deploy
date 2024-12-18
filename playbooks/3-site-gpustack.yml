@@ -109,6 +109,4 @@
     - name: Get control panel URL & credentials
       ansible.builtin.debug:
         msg:
-          - "URL:      http://{{ gpustack_server_host }}:{{ gpustack_server_port }}"
-          - "Username: admin"
-          - "Password: {{ gpustack_bootstrap_password }}"
+          - Run `ansible-playbook playbooks/99-show-urls.yml` to get URLs.

@@ -8,6 +8,7 @@
   - [SSH keys](#ssh-keys)
   - [Playbooks](#playbooks)
     - [Service](#service)
+    - [Connecting](#connecting)
   - [License](#license)
 
 ## About
@@ -65,33 +66,45 @@ ssh-keygen -t ed25519 -f ./keys/user_key -C "user@example.com"
 Copy over ssh keys for each machine:
 
 ```bash
-ssh-copy-id -o PubkeyAuthentication=no -i ./keys/user_key.pub user@192.168.122.10
-ssh-copy-id -o PubkeyAuthentication=no -i ./keys/user_key.pub user@192.168.122.21
-ssh-copy-id -o PubkeyAuthentication=no -i ./keys/user_key.pub user@192.168.122.22
-ssh-copy-id -o PubkeyAuthentication=no -i ./keys/user_key.pub user@192.168.122.23
+ssh-copy-id -o PreferredAuthentications=password -i ./keys/user_key.pub user@192.168.122.10
+ssh-copy-id -o PreferredAuthentications=password -i ./keys/user_key.pub user@192.168.122.21
+ssh-copy-id -o PreferredAuthentications=password -i ./keys/user_key.pub user@192.168.122.22
+ssh-copy-id -o PreferredAuthentications=password -i ./keys/user_key.pub user@192.168.122.23
 ```
 
 ## Playbooks
 
-Connection test:
+1. Connection test:
 
 ```bash
 ansible-playbook playbooks/ping.yml
 ```
 
-Deploy GPUStack on nodes and start it:
+2. Install essential packages
 
 ```bash
-ansible-playbook playbooks/site.yml
+ansible-playbook playbooks/1-install-essentials.yml
 ```
 
-Start GPUStack:
+3. Install monitoring (grafana, prometheus, node-exporter)
+
+```bash
+ansible-playbook playbooks/2-site-monitoring.yml
+```
+
+4. Deploy GPUStack on nodes and start it:
+
+```bash
+ansible-playbook playbooks/3-site-gpustack.yml
+```
+
+5. Start GPUStack:
 
 ```bash
 ansible-playbook playbooks/start.yml
 ```
 
-Stop GPUStack:
+You can stop GPUStack with:
 
 ```bash
 ansible-playbook playbooks/stop.yml
@@ -107,6 +120,18 @@ Default credentials:
 
 - User: `admin`
 - Password: `admin12345`
+
+### Connecting
+
+```bash
+ssh -L 8080:localhost:8080 -L 8081:localhost:8081 user@192.168.1.10
+```
+
+And connect using URLs by running:
+
+```bash
+ansible-playbook playbooks/99-show-urls.yml
+```
 
 ## License
 

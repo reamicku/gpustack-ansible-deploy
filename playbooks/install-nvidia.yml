@@ -1,0 +1,8 @@
+- name: Install nvidia cuda packages for Quadro K4000M
+  hosts: all
+  become: true
+  tasks:
+    - name: Install tesla 470 driver and cuda
+      ansible.builtin.apt:
+        name:
+          - libnvidia-tesla-470-cuda1

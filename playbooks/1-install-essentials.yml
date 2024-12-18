@@ -1,0 +1,64 @@
+---
+- name: Add non-free and contrib debian repositories packages
+  hosts: all
+  become: true
+  tasks:
+    - name: Add deb non-free and contrib repo for debian 
+      ansible.builtin.apt_repository:
+        repo: deb http://ftp.pl.debian.org/debian/ bookworm main non-free-firmware non-free contrib
+        state: present
+    - name: Add deb-src non-free and contrib repo for debian 
+      ansible.builtin.apt_repository:
+        repo: deb-src http://ftp.pl.debian.org/debian/ bookworm main non-free-firmware non-free contrib
+        state: present
+
+    - name: Add deb non-free and contrib repo for debian-security 
+      ansible.builtin.apt_repository:
+        repo: deb http://security.debian.org/debian-security bookworm-security main non-free-firmware non-free contrib
+        state: present
+    - name: Add deb-src non-free and contrib repo debian-security 
+      ansible.builtin.apt_repository:
+        repo: deb-src http://security.debian.org/debian-security bookworm-security main non-free-firmware non-free contrib
+        state: present
+
+    - name: Add deb non-free and contrib repo for debian-updates 
+      ansible.builtin.apt_repository:
+        repo: deb http://ftp.pl.debian.org/debian/ bookworm-updates main non-free-firmware non-free contrib
+        state: present
+    - name: Add deb-src non-free and contrib repo debian-updates 
+      ansible.builtin.apt_repository:
+        repo: deb-src http://ftp.pl.debian.org/debian/ bookworm-updates main non-free-firmware non-free contrib
+        state: present
+
+- name: Install essential packages
+  hosts: all
+  become: true
+  tasks:
+    - name: Update repository index
+      changed_when: false
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Upgrade packages
+      ansible.builtin.apt:
+        upgrade: dist
+
+    - name: Install essential packages
+      ansible.builtin.apt:
+        name:
+            - vim
+            - curl
+            - wget
+            - htop
+            - nvtop
+            - lshw
+            - tmux
+            - tree
+            - docker.io
+
+    - name: Add {{ ansible_user }} to docker permission group
+      ansible.builtin.user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: true

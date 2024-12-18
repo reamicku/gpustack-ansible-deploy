@@ -8,13 +8,13 @@
 
 ## Hosty
 
-| Host           | Rola                                                           |
-| -------------- | -------------------------------------------------------------- |
-| `172.16.3.190` | `gpustack-controller`, `gpustack-worker`, `monitor-controller` |
-| `172.16.3.191` | `gpustack-worker`                                              |
-| `172.16.3.192` | `gpustack-worker`                                              |
-| `172.16.3.193` | `gpustack-worker`                                              |
-| `172.16.3.194` | `gpustack-worker`                                              |
+| Is Active | Host           | Rola                                                           |
+| --------- | -------------- | -------------------------------------------------------------- |
+| 🟢        | `172.16.3.190` | `gpustack-controller`, `gpustack-worker`, `monitor-controller` |
+| 🔴        | `172.16.3.191` | `gpustack-worker`                                              |
+| 🟢        | `172.16.3.192` | `gpustack-worker`                                              |
+| 🟢        | `172.16.3.193` | `gpustack-worker`                                              |
+| 🔴        | `172.16.3.194` | `gpustack-worker`                                              |
 
 ## Role
 

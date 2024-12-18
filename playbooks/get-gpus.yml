@@ -1,0 +1,10 @@
+---
+- name: Get GPUs
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Run bash command
+      ansible.builtin.shell: lspci | grep -i nvidia
+      register: out
+    - name: Print GPUs
+      ansible.builtin.debug: var=out.stdout_lines
