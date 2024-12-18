@@ -2,7 +2,7 @@
 
 - [GPUStack deployment on multi-node cluster with Ansible](#gpustack-deployment-on-multi-node-cluster-with-ansible)
   - [About](#about)
-  - [Setting up a local environemt with Libvirt](#setting-up-a-local-environemt-with-libvirt)
+  - [Setting up a local environment with Libvirt](#setting-up-a-local-environment-with-libvirt)
     - [Prepare virtual machines](#prepare-virtual-machines)
     - [Set DHCP leashes for virtual machines](#set-dhcp-leashes-for-virtual-machines)
   - [SSH keys](#ssh-keys)
@@ -14,7 +14,9 @@
 
 This ansible project automatically installs [GPUStack](https://github.com/gpustack/gpustack) on target machines.
 
-## Setting up a local environemt with Libvirt
+The plan is described in [PLAN.md](./PLAN.md).
+
+## Setting up a local environment with Libvirt
 
 ### Prepare virtual machines
 
