@@ -3,7 +3,7 @@
   hosts: all
   become: true
   tasks:
-    - name: Run node-exporter container
+    - name: Deploy node-exporter container
       docker_container:
         name: node-exporter
         image: quay.io/prometheus/node-exporter:latest
@@ -15,8 +15,16 @@
           - "/:/host:ro,rslave"
         command: --path.rootfs=/host
 
+- name: Create an internal network for monitoring
+  hosts: controller
+  become: true
+  tasks:
+    - name: Create 'net_monitoring' network
+      docker_network:
+        name: net_monitoring
+
 - name: Install prometheus
-  hosts: controllers
+  hosts: controller
   become: true
   tasks:
     - name: Generate target hosts list
@@ -30,7 +38,7 @@
         mode: '0755'
       become: false
 
-    - name: Create prometheus data directory
+    - name: Create Prometheus data directory
       ansible.builtin.file:
         path: ~/data/prometheus
         state: directory
@@ -50,14 +58,14 @@
         name: prometheus_persistence_data
         driver: local
 
-    - name: Run Prometheus container
+    - name: Deploy Prometheus container
       docker_container:
         name: prometheus
         image: prom/prometheus:latest
         restart: yes
         detach: yes
-        ports:
-          - "0.0.0.0:8080:9090"
+        networks:
+         - name: "net_monitoring"
         volumes:
           - "prometheus_persistence_data:/prometheus"
           - "/home/user/data/prometheus:/etc/prometheus"
@@ -68,4 +76,63 @@
       docker_container:
         name: prometheus
         restart: yes
-     
+
+- name: Install Grafana
+  hosts: controller
+  become: true
+  tasks:
+    - name: Create Grafana persistence volume
+      docker_volume:
+        name: grafana_persistence_data
+        driver: local
+
+    - name: Deploy Grafana container
+      docker_container:
+        name: grafana
+        image: grafana/grafana-enterprise:latest
+        restart: yes
+        detach: yes
+        networks:
+          - name: "net_monitoring"
+        ports:
+          - "0.0.0.0:{{ grafana_server_port }}:3000"
+        volumes:
+          - grafana_persistence_data:/var/lib/grafana
+        env:
+          GF_SECURITY_ADMIN_USER: "{{ grafana_initial_admin_user }}"
+          GF_SECURITY_ADMIN_PASSWORD: "{{ grafana_initial_admin_password }}"
+          GF_SECURITY_ADMIN_EMAIL: "{{ grafana_initial_admin_email }}"
+
+    - name: Pause for 5 seconds for Grafana to propagate
+      shell:
+        cmd: sleep 5
+
+    - name: Create Prometheus datasource in Grafana
+      community.grafana.grafana_datasource:
+        grafana_url: "http://{{ hostvars['controller-1']['ansible_host'] }}:8080"
+        grafana_user: "{{ grafana_initial_admin_user }}"
+        grafana_password: "{{ grafana_initial_admin_password }}"
+        name: "prometheus"
+        ds_type: prometheus
+        ds_url: http://prometheus:9090
+        access: proxy
+        is_default: true
+
+    - name: Import Grafana dashboard for node-exporter
+      community.grafana.grafana_dashboard:
+        grafana_url: "http://{{ hostvars['controller-1']['ansible_host'] }}:8080"
+        grafana_user: "{{ grafana_initial_admin_user }}"
+        grafana_password: "{{ grafana_initial_admin_password }}"
+        dashboard_id: 1860
+        dashboard_revision: 37
+        state: present
+        commit_message: Updated by ansible
+        overwrite: true
+
+- name: Output variables
+  hosts: controller
+  tasks:
+    - name: Get control panel URL & credentials
+      ansible.builtin.debug:
+        msg:
+          - Run the `playbooks/99-show-urls.yml` playbook to get URLs.

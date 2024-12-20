@@ -1,6 +1,6 @@
 ---
 - name: Output variables
-  hosts: controllers
+  hosts: controller
   tasks:
     - name: Get control panel URL & credentials
       ansible.builtin.debug:
@@ -8,3 +8,9 @@
           - "URL:      http://{{ gpustack_server_host }}:{{ gpustack_server_port }}"
           - "Username: admin"
           - "Password: {{ gpustack_bootstrap_password }}"
+    - name: Get grafana monitoring URL & credentials
+      ansible.builtin.debug:
+        msg:
+          - "URL:      http://{{ grafana_server_host }}:{{ grafana_server_port }}"
+          - "Username: {{ grafana_initial_admin_user }}"
+          - "Password: {{ grafana_initial_admin_password }}"

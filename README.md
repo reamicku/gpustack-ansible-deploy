@@ -2,13 +2,15 @@
 
 - [GPUStack deployment on multi-node cluster with Ansible](#gpustack-deployment-on-multi-node-cluster-with-ansible)
   - [About](#about)
-  - [Setting up a local environment with Libvirt](#setting-up-a-local-environment-with-libvirt)
+  - [Supported system configurations](#supported-system-configurations)
+  - [Local dev environment (Libvirt)](#local-dev-environment-libvirt)
     - [Prepare virtual machines](#prepare-virtual-machines)
     - [Set DHCP leashes for virtual machines](#set-dhcp-leashes-for-virtual-machines)
-  - [SSH keys](#ssh-keys)
-  - [Playbooks](#playbooks)
+  - [Deployment](#deployment)
+    - [SSH keys](#ssh-keys)
+    - [Playbooks](#playbooks)
     - [Service](#service)
-    - [Connecting](#connecting)
+    - [Connect](#connect)
   - [License](#license)
 
 ## About
@@ -17,7 +19,13 @@ This ansible project automatically installs [GPUStack](https://github.com/gpusta
 
 The plan is described in [PLAN.md](./PLAN.md).
 
-## Setting up a local environment with Libvirt
+## Supported system configurations
+
+Subject | Value
+-|-
+Operating system | Debian 12
+
+## Local dev environment (Libvirt)
 
 ### Prepare virtual machines
 
@@ -54,7 +62,9 @@ Proceed to stop and start the network while all machines are off.
 
 Now your virtual environment is ready to be used by ansible.
 
-## SSH keys
+## Deployment
+
+### SSH keys
 
 Generate ssh key for ansible to connect to hosts.
 
@@ -66,13 +76,13 @@ ssh-keygen -t ed25519 -f ./keys/user_key -C "user@example.com"
 Copy over ssh keys for each machine:
 
 ```bash
-ssh-copy-id -o PreferredAuthentications=password -i ./keys/user_key.pub user@192.168.122.10
-ssh-copy-id -o PreferredAuthentications=password -i ./keys/user_key.pub user@192.168.122.21
-ssh-copy-id -o PreferredAuthentications=password -i ./keys/user_key.pub user@192.168.122.22
-ssh-copy-id -o PreferredAuthentications=password -i ./keys/user_key.pub user@192.168.122.23
+ssh-copy-id -o PreferredAuthentications=password -i ./keys/user_key user@192.168.122.10
+ssh-copy-id -o PreferredAuthentications=password -i ./keys/user_key user@192.168.122.21
+ssh-copy-id -o PreferredAuthentications=password -i ./keys/user_key user@192.168.122.22
+ssh-copy-id -o PreferredAuthentications=password -i ./keys/user_key user@192.168.122.23
 ```
 
-## Playbooks
+### Playbooks
 
 1. Connection test:
 
@@ -101,13 +111,13 @@ ansible-playbook playbooks/3-site-gpustack.yml
 5. Start GPUStack:
 
 ```bash
-ansible-playbook playbooks/start.yml
+ansible-playbook playbooks/70-start-gpustack.yml
 ```
 
 You can stop GPUStack with:
 
 ```bash
-ansible-playbook playbooks/stop.yml
+ansible-playbook playbooks/71-stop-gpustack.yml
 ```
 
 ### Service
@@ -116,15 +126,18 @@ The service will be available at the address printed out after the `playbooks/si
 
 By default the service is exposed on the controller node on port `6712` (unless changed in `inventory.ini` file).
 
-Default credentials:
-
-- User: `admin`
-- Password: `admin12345`
-
-### Connecting
+Default credentials can be retrieved by running playbook:
 
 ```bash
-ssh -L 8080:localhost:8080 -L 8081:localhost:8081 user@192.168.1.10
+ansible-playbook playbooks/99-show-urls.yml
+```
+
+### Connect
+
+Run ssh to port-forward from remote control host node:
+
+```bash
+ssh -L 6712:localhost:6712 -L 8080:localhost:8080 user@192.168.1.10
 ```
 
 And connect using URLs by running:

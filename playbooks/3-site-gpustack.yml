@@ -58,7 +58,7 @@
         state: restarted
 
 - name: Setup controller node
-  hosts: controllers
+  hosts: controller
   tasks:
     - name: Copy and render config file for controller
       notify: Restart gpustack
@@ -81,9 +81,9 @@
         daemon_reload: true
 
 - name: Setup worker nodes
-  hosts: workers
+  hosts: worker
   tasks:
-    - name: Copy and render config file for workers
+    - name: Copy and render config file for worker
       notify: Restart gpustack
       ansible.builtin.template:
         src: ./templates/config_worker.yml.j2
@@ -104,9 +104,9 @@
         daemon_reload: true
 
 - name: Output variables
-  hosts: controllers
+  hosts: controller
   tasks:
     - name: Get control panel URL & credentials
       ansible.builtin.debug:
         msg:
-          - Run `ansible-playbook playbooks/99-show-urls.yml` to get URLs.
+          - Run the `playbooks/99-show-urls.yml` playbook to get URLs.

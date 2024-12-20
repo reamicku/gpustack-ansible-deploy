@@ -1,6 +1,6 @@
 ---
 - name: Start GPUStack worker nodes
-  hosts: workers
+  hosts: worker
   tasks:
     - name: Start GPUstack
       become: true
@@ -10,7 +10,7 @@
         enabled: true
 
 - name: Start GPUStack controller node
-  hosts: controllers
+  hosts: controller
   tasks:
     - name: Start GPUstack
       become: true
