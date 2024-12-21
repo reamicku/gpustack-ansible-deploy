@@ -1,0 +1,46 @@
+---
+- name: Stop GPUStack worker nodes
+  hosts: worker
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Stop GPUstack
+      become: true
+      ansible.builtin.systemd_service:
+        name: gpustack
+        state: stopped
+        enabled: false
+
+- name: Stop GPUStack controller node
+  hosts: controller
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Stop GPUstack
+      become: true
+      ansible.builtin.systemd_service:
+        name: gpustack
+        state: stopped
+        enabled: false
+
+- name: Destroy GPUStack on nodes
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Delete systemd service
+      ansible.builtin.file:
+        path: /etc/systemd/system/gpustack.service
+        state: absent
+    - name: Delete config file
+      ansible.builtin.file:
+        path: /home/user/gpustack/config.yml
+        state: absent
+    - name: Recursively remove directory
+      ansible.builtin.file:
+        path: /home/user/gpustack
+        state: absent
+    - name: Uninstall pipx package
+      community.general.pipx:
+        name: gpustack
+        state: absent
