@@ -23,7 +23,7 @@ gpustack_token=abcd1234
 
 ; Monitoring variables
 grafana_server_host=192.168.122.10
-grafana_server_port=8080
+grafana_server_port=8081
 grafana_initial_admin_user=admin
 grafana_initial_admin_password=admin12345
 grafana_initial_admin_email=admin@localhost
