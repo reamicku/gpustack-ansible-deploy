@@ -80,6 +80,13 @@
         state: restarted
         daemon_reload: true
 
+- name: Pause
+  hosts: all
+  tasks:
+    - shell:
+      name: Propagate changes for 20 seconds
+      cmd: sleep 20
+
 - name: Setup worker nodes
   hosts: worker
   tasks:

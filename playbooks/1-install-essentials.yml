@@ -5,11 +5,11 @@
   tasks:
     - name: Add deb non-free and contrib repo for debian 
       ansible.builtin.apt_repository:
-        repo: deb http://ftp.pl.debian.org/debian/ bookworm main non-free-firmware non-free contrib
+        repo: deb http://ftp.icm.edu.pl/debian/ bookworm main non-free-firmware non-free contrib
         state: present
     - name: Add deb-src non-free and contrib repo for debian 
       ansible.builtin.apt_repository:
-        repo: deb-src http://ftp.pl.debian.org/debian/ bookworm main non-free-firmware non-free contrib
+        repo: deb-src http://ftp.icm.edu.pl/debian/ bookworm main non-free-firmware non-free contrib
         state: present
 
     - name: Add deb non-free and contrib repo for debian-security 
@@ -23,11 +23,11 @@
 
     - name: Add deb non-free and contrib repo for debian-updates 
       ansible.builtin.apt_repository:
-        repo: deb http://ftp.pl.debian.org/debian/ bookworm-updates main non-free-firmware non-free contrib
+        repo: deb http://ftp.icm.edu.pl/debian/ bookworm-updates main non-free-firmware non-free contrib
         state: present
     - name: Add deb-src non-free and contrib repo debian-updates 
       ansible.builtin.apt_repository:
-        repo: deb-src http://ftp.pl.debian.org/debian/ bookworm-updates main non-free-firmware non-free contrib
+        repo: deb-src http://ftp.icm.edu.pl/debian/ bookworm-updates main non-free-firmware non-free contrib
         state: present
 
 - name: Install essential packages

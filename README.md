@@ -69,7 +69,7 @@ Now your virtual environment is ready to be used by ansible.
 Generate ssh key for ansible to connect to hosts.
 
 ```bash
-mkdir keys
+mkdir -p keys
 ssh-keygen -t ed25519 -f ./keys/user_key -C "user@example.com"
 ```
 
@@ -137,7 +137,7 @@ ansible-playbook playbooks/99-show-urls.yml
 Run ssh to port-forward from remote control host node:
 
 ```bash
-ssh -L 6712:localhost:6712 -L 8080:localhost:8080 user@192.168.1.10
+ssh -L 8080:localhost:8080 -L 8081:localhost:8081 user@192.168.1.10
 ```
 
 And connect using URLs by running:

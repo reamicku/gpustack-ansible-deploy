@@ -103,9 +103,9 @@
           GF_SECURITY_ADMIN_PASSWORD: "{{ grafana_initial_admin_password }}"
           GF_SECURITY_ADMIN_EMAIL: "{{ grafana_initial_admin_email }}"
 
-    - name: Pause for 5 seconds for Grafana to propagate
+    - name: Pause for 20 seconds for Grafana to propagate
       shell:
-        cmd: sleep 5
+        cmd: sleep 20
 
     - name: Create Prometheus datasource in Grafana
       community.grafana.grafana_datasource:
