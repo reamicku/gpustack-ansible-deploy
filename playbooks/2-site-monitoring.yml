@@ -17,6 +17,30 @@
           - "/:/host:ro,rslave"
         command: --path.rootfs=/host
 
+- name: Install cAdvisor
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Deploy cAdvisor
+      docker_container:
+        name: cadvisor
+        image: gcr.io/cadvisor/cadvisor:latest
+        restart: no
+        restart_policy: unless-stopped
+        volumes:
+          - /:/rootfs:ro
+          - /var/run:/var/run:ro
+          - /sys:/sys:ro
+          - /var/lib/docker/:/var/lib/docker:ro
+          - /dev/disk/:/dev/disk:ro
+        ports:
+          - "9123:8080"
+        detach: true
+        privileged: true
+        devices:
+          - /dev/kmsg
+
 - name: Create an internal network for monitoring
   hosts: controller
   become: true
@@ -26,14 +50,18 @@
       docker_network:
         name: net_monitoring
 
-- name: Install prometheus
+- name: Install Prometheus
   hosts: controller
   become: true
   gather_facts: false
   tasks:
-    - name: Generate target hosts list
+    - name: Generate target hosts list for node exporter
       set_fact:
-        target_hosts: "{% for host in groups['all'] %}\"{{ hostvars[host]['ansible_host'] }}:9100\"{% if not loop.last %}, {% endif %}{% endfor %}"
+        target_hosts_nodeexporter: "{% for host in groups['all'] %}\"{{ hostvars[host]['ansible_host'] }}:9100\"{% if not loop.last %}, {% endif %}{% endfor %}"
+    
+    - name: Generate target hosts list for cAdvisor
+      set_fact:
+        target_hosts_cadvisor: "{% for host in groups['all'] %}\"{{ hostvars[host]['ansible_host'] }}:9123\"{% if not loop.last %}, {% endif %}{% endfor %}"
     
     - name: Create data directory
       ansible.builtin.file:
@@ -76,10 +104,11 @@
           - "/home/user/data/prometheus:/etc/prometheus"
 
   handlers:
-    - name: Restart prometheus
+    - name: Restart Prometheus
       become: true
       docker_container:
         name: prometheus
+        state: started
         restart: yes
 
 - name: Install Grafana
@@ -139,6 +168,18 @@
         dashboard_id: 1860
         dashboard_revision: 37
         state: present
+        overwrite: false
+        commit_message: Updated by ansible
+    
+    - name: Import Grafana dashboard for cAdvisor
+      community.grafana.grafana_dashboard:
+        grafana_url: "http://{{ hostvars['controller-1']['ansible_host'] }}:{{ grafana_server_port }}"
+        grafana_user: "{{ grafana_initial_admin_user }}"
+        grafana_password: "{{ grafana_initial_admin_password }}"
+        dashboard_id: 14282
+        dashboard_revision: 1
+        state: present
+        overwrite: false
         commit_message: Updated by ansible
 
 - name: Output variables
