@@ -108,12 +108,14 @@
           GF_SECURITY_ADMIN_USER: "{{ grafana_initial_admin_user }}"
           GF_SECURITY_ADMIN_PASSWORD: "{{ grafana_initial_admin_password }}"
           GF_SECURITY_ADMIN_EMAIL: "{{ grafana_initial_admin_email }}"
+      register: grafana_ct_result
 
     - name: Pause for Grafana to propagate
       shell:
         cmd: sleep 10; return 0
       register: result
       changed_when: result.rc == 1
+      when: grafana_ct_result is changed
 
     # Will always report 'changed' due to a bug.
     # https://github.com/ansible-collections/community.grafana/issues/127
