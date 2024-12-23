@@ -83,7 +83,7 @@
         dest: /home/user/data/prometheus/prometheus.yml
         mode: '0644'
       become: false
-      notify: Restart prometheus
+      notify: Restart Prometheus
 
     - name: Create Prometheus persistence volume
       docker_volume:
