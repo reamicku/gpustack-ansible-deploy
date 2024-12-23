@@ -20,6 +20,7 @@
 - name: Create an internal network for monitoring
   hosts: controller
   become: true
+  gather_facts: false
   tasks:
     - name: Create 'net_monitoring' network
       docker_network:
