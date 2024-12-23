@@ -2,6 +2,7 @@
 - name: Install node-exporter
   hosts: all
   become: true
+  gather_facts: false
   tasks:
     - name: Deploy node-exporter container
       docker_container:
@@ -27,6 +28,7 @@
 - name: Install prometheus
   hosts: controller
   become: true
+  gather_facts: false
   tasks:
     - name: Generate target hosts list
       set_fact:
@@ -82,6 +84,7 @@
 - name: Install Grafana
   hosts: controller
   become: true
+  gather_facts: false
   tasks:
     - name: Create Grafana persistence volume
       docker_volume:
@@ -137,6 +140,7 @@
 
 - name: Output variables
   hosts: controller
+  gather_facts: false
   tasks:
     - name: Get control panel URL & credentials
       ansible.builtin.debug:
