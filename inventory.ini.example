@@ -31,6 +31,7 @@ grafana_initial_admin_email=admin@localhost
 ; Docker container image tags
 node_exporter_version = v1.8.2
 cadvisor_version = v0.49.2
+nvidia_gpu_exporter_version = 1.2.1
 prometheus_version = v3.0.1
 grafana_version = 11.4.0
 

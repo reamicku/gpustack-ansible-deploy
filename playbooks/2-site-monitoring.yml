@@ -43,6 +43,29 @@
         devices:
           - /dev/kmsg
 
+- name: Install nvidia-gpu-exporter
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Deploy nvidia-gpu-exporter
+      docker_container:
+        name: nvidia_gpu_exporter
+        image: utkuozdemir/nvidia_gpu_exporter:{{ nvidia_gpu_exporter_version }}
+        image_name_mismatch: recreate
+        state: started
+        restart: false
+        restart_policy: unless-stopped
+        devices:
+          - "/dev/nvidiactl:/dev/nvidiactl"
+          - "/dev/nvidia0:/dev/nvidia0"
+        volumes:
+          - "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so:/usr/lib/x86_64-linux-gnu/libnvidia-ml.so:ro"
+          - "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1:/usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1:ro"
+          - "/usr/bin/nvidia-smi:/usr/bin/nvidia-smi:ro"
+        ports:
+          - "9835:9835"
+
 - name: Create an internal network for monitoring
   hosts: controller
   become: true
@@ -64,6 +87,10 @@
     - name: Generate target hosts list for cAdvisor
       set_fact:
         target_hosts_cadvisor: "{% for host in groups['all'] %}\"{{ hostvars[host]['ansible_host'] }}:9123\"{% if not loop.last %}, {% endif %}{% endfor %}"
+    
+    - name: Generate target hosts list for nvidia gpu exporter
+      set_fact:
+        target_hosts_nvidiagpuexporter: "{% for host in groups['all'] %}\"{{ hostvars[host]['ansible_host'] }}:9835\"{% if not loop.last %}, {% endif %}{% endfor %}"
     
     - name: Create data directory
       ansible.builtin.file:
@@ -187,6 +214,22 @@
         grafana_user: "{{ grafana_initial_admin_user }}"
         grafana_password: "{{ grafana_initial_admin_password }}"
         path: /tmp/dashboard_cadvisor.json
+        state: present
+        overwrite: true
+        commit_message: Updated by ansible
+
+    - name: Copy nvidia-gpu-exporter dashboard file to remote
+      copy:
+        src: ./files/grafana/dashboards/dashboard_nvidia_gpu_exporter.json
+        dest: /tmp/dashboard_nvidia_gpu_exporter.json
+        mode: '0644'
+    
+    - name: Import Grafana dashboard for nvidia-gpu-exporter
+      community.grafana.grafana_dashboard:
+        grafana_url: "http://{{ hostvars['controller-1']['ansible_host'] }}:{{ grafana_server_port }}"
+        grafana_user: "{{ grafana_initial_admin_user }}"
+        grafana_password: "{{ grafana_initial_admin_password }}"
+        path: /tmp/dashboard_nvidia_gpu_exporter.json
         state: present
         overwrite: true
         commit_message: Updated by ansible
